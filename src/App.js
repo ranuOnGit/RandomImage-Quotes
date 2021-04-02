@@ -1,25 +1,50 @@
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
+import Axios from 'axios';
 
-function App() {
+const App = () => {
+  const [image, setImage] = useState(null);
+  const [quote, setQuote] = useState('');
+  const [author, setAuthor] = useState('');
+
+  const fetchData = async () => {
+    const imageAPI = 'https://picsum.photos/1100/550';
+    const quoteAPI = 'https://random-math-quote-api.herokuapp.com/ ';
+
+    const fetchImage = await Axios.get(imageAPI);
+    const fetchQuote = await Axios.get(quoteAPI);
+
+    await Axios.all([fetchImage, fetchQuote])
+      .then(Axios.spread((...allData) => {
+          const getImage = allData[ 0 ].config.url;
+          const getQuote = allData[ 1 ].data.quote;
+          const getAuthor = allData[1].data.author;
+          setImage(getImage)          
+          setQuote(getQuote)          
+          setAuthor(getAuthor)       
+        }),
+      )
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>A MATH QUOTE</h1>
+      <div className='image'>
+        <img src={image} alt=''></img>
+        <div className='quote'>
+          <h1>{quote}</h1>
+          <p>- {author}</p>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
 export default App;
